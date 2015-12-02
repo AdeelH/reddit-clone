@@ -16,6 +16,8 @@
 		apologize("Nothing here!");
 	}
 
+	log_soc_activity($soc["soc_id"]);
+
 	$title = $soc["soc_name"];
 	$status = soc_rel($soc);
 

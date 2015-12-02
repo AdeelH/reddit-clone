@@ -10,6 +10,12 @@
 </div>
 <div class="panel-body well well-sm">
 <ul class="nav nav-tabs">
+	<li role="navigation" class=<?php echo $t=="main" ? "active":""?>>
+		<a href=<?php echo $pg."main" ?>> 
+			<span><i class="fa fa-tachometer"></i></span>
+			Dashboard
+		</a>
+	</li>
 	<li role="presentation" class=<?php echo $t=="mods"  ? "active":"" ?> >
 		<a href=<?php echo $pg."mods" ?>>
 			<span class="glyphicon glyphicon-list"></span>
@@ -28,13 +34,13 @@
 			 Mod Log
 		</a>
 	</li>
-	<li role="presentation" class=<?php echo $t=="posts" ? "active":"" ?> >
+	<li role="presentation" class=<?php echo $t=="dposts" ? "active":"" ?> >
 		<a href=<?php echo $pg."dposts" ?>>
 			<span class="glyphicon glyphicon-file"></span>
 			 Deleted Posts
 		</a>
 	</li>
-	<li role="presentation" class=<?php echo $t=="comms" ? "active":"" ?> >
+	<li role="presentation" class=<?php echo $t=="dcomms" ? "active":"" ?> >
 		<a href=<?php echo $pg."dcomms" ?>>
 			<span class="glyphicon glyphicon-comment"></span>
 			 Deleted Comments

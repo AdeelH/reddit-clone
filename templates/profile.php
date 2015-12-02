@@ -5,9 +5,9 @@
   <dt>Member since</dt>
   <dd><?php echo $u["join_date"]; ?></dd>
   <dt>Post Score</dt>
-  <dd>Coming Soon!</dd>
+  <dd><?php echo $pscore ?></dd>
   <dt>Comment Score</dt>
-  <dd>Coming Soon!</dd><div>
+  <dd><?php echo $cscore ?></dd><div>
 </dl>
 
 <?php

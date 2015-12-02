@@ -7,13 +7,14 @@
 		<!-- Bootstrap -->
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="../includes/DataTables/datatables.min.css" rel="stylesheet">
+		<link href="css/font-awesome.min.css" rel="stylesheet">
 		<script src="js/jquery-2.1.3.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
 		<script src="../includes/DataTables/datatables.min.js" rel="stylesheet"></script>
+		<script src="js/bootstrap.min.js"></script>
 
 		<title><?php echo $title; ?></title>
 		<style>
-			body { background-color: #ccc; }
+			/*body { background-color: #ccc; }*/
 			.post-title { color: black; }
 			.soc-title { color: black; }
 			.post-details { color: #777; }

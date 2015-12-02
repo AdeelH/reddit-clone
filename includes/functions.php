@@ -41,6 +41,9 @@
         exit;
     }
 
+    /**
+     * Executes multiple SQL statements in a single transaction, each with its own parameters
+     */
 	function tquery()
 	{
 		// sql statements in transaction
@@ -105,6 +108,8 @@
      */
     function query()
     {
+    	log_activity();
+
         // SQL statement
         $sql = func_get_arg(0);
 		
@@ -154,6 +159,31 @@
 		{	
 			trigger_error($e->getMessage(), E_USER_ERROR); exit;
 		}
+    }
+
+    function log_activity()
+    {
+    	if (isset($_SESSION["user"]))
+    	{
+    		tquery("INSERT INTO user_activity(user_id)
+	    			VALUES(?)",
+	    			[
+	    				$_SESSION["user"]["user_id"]
+	    			]);
+    	}
+    }
+
+    function log_soc_activity($sid)
+    {
+    	if (isset($_SESSION["user"]))
+    	{
+    		tquery("INSERT INTO soc_views(user_id, soc_id)
+	    			VALUES(?, ?)",
+	    			[
+	    				$_SESSION["user"]["user_id"],
+	    				$sid
+	    			]);
+    	}
     }
 
     /**

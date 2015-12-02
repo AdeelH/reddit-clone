@@ -3,7 +3,6 @@
 	// configuration
     require_once("../includes/config.php");
 	
-	// assoc array
 	$log = get_admin_log();
 
 	render_mult([	

@@ -72,13 +72,15 @@
 	/**
 		Post functions
 	*/
-	function get_posts($soc, $offset, $lim)
+	function get_posts($soc, $offset = 0, $lim = 20)
 	{
-		return query("	SELECT  p.post_id, 
-								p.title, 
+		return query("	SELECT  p.*,
 								u.username, 
-								p.time, 
 								sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) as votes,
+								(SELECT count(*) 
+								 FROM post_views w
+								 WHERE w.post_id = p.post_id
+								) as \"views\",
 								(SELECT count(*) 
 								   FROM comments c
 								  WHERE c.post_id = p.post_id
@@ -95,7 +97,7 @@
 						
 						WHERE p.soc_id = ?
 						GROUP BY p.post_id
-						ORDER BY votes desc
+						ORDER BY votes DESC, views DESC
 						LIMIT ?
 						OFFSET ?",
 
@@ -112,6 +114,10 @@
 										u.username,
 										sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) as votes,
 										(SELECT count(*) 
+										 FROM post_views w
+										 WHERE w.post_id = p.post_id
+										) as \"views\",
+										(SELECT count(*) 
 										 FROM comments c
 										 WHERE c.post_id = p.post_id
 										) as \"comments\",
@@ -121,7 +127,7 @@
 										    AND pv.user_id = ?
 										) as \"vote\"
 								FROM posts p 
-								LEFT JOIN post_votes v on p.post_id = v.post_id 
+								LEFT JOIN post_votes v on v.post_id = p.post_id
 								JOIN users u on p.user_id = u.user_id
 								
 								WHERE p.post_id = ?
@@ -156,9 +162,13 @@
 	{
 		isset($u) || $u = $_SESSION["user"]["user_id"];
 
-		return query("	SELECT 	s.soc_id,
+		return query("	SELECT 	p.*,
+								s.soc_id,
 								s.soc_name as \"society\",
-								p.*
+								(SELECT sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) 
+								   FROM post_votes v
+								  WHERE v.post_id = p.post_id
+								) as \"votes\"
 						FROM posts p
 						JOIN societies s on s.soc_id=p.soc_id
 						WHERE p.user_id = ?
@@ -242,7 +252,11 @@
 								s.soc_name as \"society\",
 								c.*,
 								p.post_id,
-								p.title as \"post\"
+								p.title as \"post\",
+								(SELECT sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) 
+								   FROM comm_votes v
+								  WHERE v.comm_id = c.comm_id
+								) as \"votes\"
 						FROM comments c
 						JOIN posts p on p.post_id=c.post_id 
 						JOIN societies s on s.soc_id=p.soc_id
@@ -561,7 +575,8 @@
 	function get_inbox()
 	{
 		return query("SELECT p.*, 
-							 s.username \"sender\"
+							 s.username \"sender\"-- ,
+							 -- if(p.read_time is NULL, 'UNREAD', 'READ') \"status\"
 						FROM pms p
 						JOIN users s on s.user_id = p.sender
 						WHERE p.receiver = ?
@@ -581,4 +596,257 @@
 						$_SESSION["user"]["user_id"]
 					);
 	}
+
+	function get_active_users($t = 10)
+	{
+		return ($r = query("	SELECT count(DISTINCT user_id) \"active\"
+								FROM `user_activity` 
+								WHERE TIMESTAMPDIFF(MINUTE, time, sysdate()) < ?",
+								$t
+							)
+				)
+				?
+				$r[0]["active"]:0;
+	}
+
+	function get_active_admins($t = 10)
+	{
+		return ($r = query("	SELECT count(DISTINCT a.user_id) \"active\"
+						FROM user_activity a
+						JOIN users u on u.user_id = a.user_id
+						WHERE u.status = 'ADMIN'
+						and TIMESTAMPDIFF(MINUTE, a.time, sysdate()) < ?",
+						$t
+					)
+				)
+				?
+				$r[0]["active"]:0;
+	}
+
+	function get_new_regs_today()
+	{
+		return ($r = query("	SELECT  count(*) \"regs\"
+								FROM users
+			                    WHERE datediff(sysdate(), join_date) = 0"
+        			        )
+				)
+				?
+				$r[0]["regs"]:0;
+	}
+
+	function get_most_active_socs($n = 10)
+	{
+		return query("	SELECT 	count(*) \"#comments\",
+								s.soc_name society
+						FROM societies s
+						JOIN posts p on p.soc_id = s.soc_id
+						JOIN comments c on c.post_id = p.post_id
+	                    WHERE datediff(sysdate(), c.time) = 0
+	                    GROUP BY s.soc_id
+	                    ORDER BY \"#comments\" DESC
+	                    LIMIT ?",
+	                    $n
+			       );
+	}
+
+	function get_fastest_growing_socs($n = 10)
+	{
+		return query("	SELECT 	count(*) \"#subs\",
+								s.soc_name \"society\"
+						FROM societies s
+						JOIN soc_subs ss on ss.soc_id = s.soc_id
+	                    WHERE datediff(sysdate(), ss.time) = 0
+	                    GROUP BY s.soc_id
+	                    ORDER BY \"#subs\"
+	                    LIMIT ?",
+	                    $n
+			        );
+	}
+
+	function get_comms_today($sid)
+	{
+		return ($r = query("	SELECT 	count(*) \"#comments\"
+								FROM societies s
+								JOIN posts p on p.soc_id = s.soc_id
+								JOIN comments c on c.post_id = p.post_id
+			                    WHERE datediff(sysdate(), c.time) = 0
+			                    and s.soc_id = ?",
+			                    $sid
+						       	)
+				)
+				?
+				$r[0]["#comments"]:0;
+	}
+
+	function get_posts_today($sid)
+	{
+		return ($r = query("	SELECT 	count(*) \"#posts\"
+								FROM societies s
+								JOIN posts p on p.soc_id = s.soc_id
+			                    WHERE datediff(sysdate(), p.time) = 0
+			                    and s.soc_id = ?",
+			                    $sid
+			       )
+				)
+				?
+				$r[0]["#posts"]:0;
+	}
+
+	function get_new_subs_today($sid)
+	{
+		return ($r = query("	SELECT  count(*) \"subs\"
+								FROM soc_subs ss
+			                    WHERE datediff(sysdate(), ss.time) = 0 "
+        			        )
+				)
+				?
+				$r[0]["subs"]:0;
+	}
+
+	function get_active_users_soc($sid, $t = 10)
+	{
+		return ($r = query("	SELECT count(DISTINCT w.user_id) \"active\"
+								FROM soc_views w
+								WHERE TIMESTAMPDIFF(MINUTE, w.time, sysdate()) < ?
+			                    and w.soc_id = ?",
+								$t,
+								$sid
+							)
+				)
+				?
+				$r[0]["active"]:0;
+	}	
+
+	function get_active_mods($sid, $t = 10)
+	{
+		return ($r = query("	SELECT count(DISTINCT w.user_id) \"active\"
+								FROM soc_views w
+								JOIN soc_mods m on m.user_id = w.user_id
+								WHERE TIMESTAMPDIFF(MINUTE, w.time, sysdate()) < ?
+			                    and w.soc_id = ?",
+								$t,
+								$sid
+							)
+				)
+				?
+				$r[0]["active"]:0;
+	}
+
+	function get_new_regs_trend($days = 31)
+	{
+		return query("	SELECT  count(*) regs,
+								datediff(sysdate(), join_date) \"day\"
+						FROM users
+	                    WHERE datediff(sysdate(), join_date) < ?
+						GROUP BY datediff(sysdate(), join_date)
+						ORDER BY day",
+	                    $days
+	                );
+	}
+
+	function get_active_trend($hours = 24)
+	{
+		return query("	SELECT  count(DISTINCT a.user_id) \"active\",
+								TIMESTAMPDIFF(HOUR, a.time, sysdate()) \"hour\"
+						FROM user_activity a
+	                    WHERE TIMESTAMPDIFF(HOUR, a.time, sysdate()) < ?
+						GROUP BY TIMESTAMPDIFF(HOUR, a.time, sysdate())
+						ORDER BY \"hour\"",
+	                    $hours
+	                );
+	}
+
+	function get_active_admin_trend($hours = 24)
+	{
+		return query("	SELECT  count(DISTINCT a.user_id) \"active\",
+								TIMESTAMPDIFF(HOUR, a.time, sysdate()) \"hour\"
+						FROM user_activity a
+						JOIN users u on u.user_id = a.user_id
+	                    WHERE TIMESTAMPDIFF(HOUR, a.time, sysdate()) < ?
+	                    and u.status = 'ADMIN'
+						GROUP BY TIMESTAMPDIFF(HOUR, a.time, sysdate())
+						ORDER BY \"hour\"",
+	                    $hours
+	                );
+	}
+
+	function get_active_trend_soc($sid, $hours = 24)
+	{
+		return query("	SELECT  count(DISTINCT w.user_id) \"active\",
+								TIMESTAMPDIFF(HOUR, w.time, sysdate()) \"hour\"
+						FROM soc_views w
+	                    WHERE TIMESTAMPDIFF(HOUR, w.time, sysdate()) < ?
+	                    and w.soc_id = ?
+						GROUP BY TIMESTAMPDIFF(HOUR, w.time, sysdate())
+						ORDER BY \"hour\"",
+	                    $hours,
+	                    $sid
+	                );
+	}
+
+	function get_subs_trend($sid, $days = 7)
+	{
+		return query("	SELECT  count(DISTINCT ss.user_id) \"subs\",
+								TIMESTAMPDIFF(DAY, ss.time, sysdate()) \"day\"
+						FROM soc_subs ss
+	                    WHERE TIMESTAMPDIFF(DAY, ss.time, sysdate()) < ?
+	                    and ss.soc_id = ?
+						GROUP BY TIMESTAMPDIFF(DAY, ss.time, sysdate())
+						ORDER BY \"day\"",
+	                    $days,
+	                    $sid
+	                );
+	}
+
+	function get_comms_trend($sid, $days = 7)
+	{
+		return query("	SELECT  count(*) \"#comments\",
+								TIMESTAMPDIFF(DAY, c.time, sysdate()) \"day\"
+						FROM comments c
+						JOIN posts p on p.post_id = c.post_id
+	                    WHERE TIMESTAMPDIFF(DAY, c.time, sysdate()) < ?
+	                    and p.soc_id = ?
+						GROUP BY TIMESTAMPDIFF(DAY, c.time, sysdate())
+						ORDER BY \"day\"",
+	                    $days,
+	                    $sid
+	                );
+	}
+
+	function get_posts_trend($sid, $days = 7)
+	{
+		return query("	SELECT  count(DISTINCT p.user_id) \"#posts\",
+								TIMESTAMPDIFF(DAY, p.time, sysdate()) \"day\"
+						FROM posts p
+	                    WHERE TIMESTAMPDIFF(DAY, p.time, sysdate()) < ?
+	                    and p.soc_id = ?
+						GROUP BY TIMESTAMPDIFF(DAY, p.time, sysdate())
+						ORDER BY \"day\"",
+	                    $days,
+	                    $sid
+	                );
+	}
+
+	function get_user_score($uid = null)
+	{
+		isset($uid) || $uid = $_SESSION["user"]["user_id"];
+		return ($r = query("	SELECT (SELECT sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0)))
+										FROM comments c 
+										LEFT JOIN comm_votes v on v.comm_id = c.comm_id
+				                 	   and c.user_id = ?
+					                  ) \"cscore\",
+										(SELECT	sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0)))
+										FROM posts p 
+										LEFT JOIN post_votes v on v.post_id = p.post_id
+					                    and p.user_id = ?
+					                  ) \"pscore\"
+								FROM dual",
+								$uid,
+								$uid
+						    )
+				)
+				?
+				$r[0]:false;
+	}
+
 ?>

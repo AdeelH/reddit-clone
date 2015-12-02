@@ -21,8 +21,9 @@
 							<span class=\"glyphicon glyphicon-cog\"></span> 
 							Mod Panel
 						</a>";
+			if (!$status["admin"])
+				echo "<a class=\"btn btn-xs btn-link soc-report-btn\" id=\"\" href=\"\" data-toggle=\"modal\" data-target=\"#report-soc\" value=\"3\" style=\"float:right;\">report</a>";
 		?>
-		<a class="btn btn-xs btn-link soc-report" id="" href="" data-toggle="modal" data-target="#report-soc" value="3" style="float:right;">report</a>
 	</div>
 </div>
 <!-- society-report modal -->

@@ -3,8 +3,6 @@
     require("../includes/config.php");
     session_start();
 
-    // apologize(print_r($_POST));
-
     // sanity checks
 	if (empty($_POST['text']))		apologize("Cannot post empty comment.");
 	if (empty($_GET["pid"]))		apologize("Post-id missing.");
@@ -14,4 +12,5 @@
 		apologize("Failed to submt comment.");
 
 	redirect("post.php?soc=".$_GET["soc"]."&pid=".$_GET["pid"]);
+
 ?>

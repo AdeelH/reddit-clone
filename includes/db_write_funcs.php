@@ -491,22 +491,37 @@
 					 );
 	}
 
-	function sub_post($p)
+	function sub_post($pid)
 	{
 		return tquery(" insert into post_subs(user_id, post_id)
 						values(?, ?)",
-						$_SESSION["user"]["user_id"],
-						$p["post_id"]
+						[
+							$_SESSION["user"]["user_id"],
+							$pid
+						]
 					 );
 	}
 
-	function unsub_post()
+	function unsub_post($pid)
 	{
 		return tquery(" delete from post_subs
 						where user_id = ?
 						and   post_id = ?",
-						$_SESSION["user"]["user_id"],
-						$p["post_id"]
+						[
+							$_SESSION["user"]["user_id"],
+							$pid
+						]
+					 );
+	}
+
+	function register_post_view($pid)
+	{
+		return tquery(" INSERT INTO post_views(user_id, post_id)
+						VALUES(?, ?)",
+						[
+							$_SESSION["user"]["user_id"],
+							$pid
+						]
 					 );
 	}
 

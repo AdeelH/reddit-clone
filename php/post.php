@@ -9,13 +9,16 @@
 
 		if (!$post || $post["status"] == "DELETED")
 			apologize("Nothing here!");
+
+		// register post view
+		register_post_view($post["post_id"]);
 		
 		if (isset($_GET["paction"]))
 		{
 			if (strcasecmp($_GET["paction"], "sub"))
-				post_sub($soc);
+				post_sub($post["post_id"]);
 			elseif (strcasecmp($_GET["paction"], "unsub"))
-				post_unsub($soc);
+				post_unsub($post["post_id"]);
 		}
 		
 		// fetch comments

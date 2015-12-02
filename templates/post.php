@@ -3,7 +3,9 @@
 
 	$mod = am_mod($soc);
 	echo to_html(post_full($post, $soc, $mod));
+
 ?>
+
 <!-- Comment Section -->
 <div class="panel panel-default well">
 	<div class="panel-heading">
