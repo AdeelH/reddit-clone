@@ -30,7 +30,7 @@
 
 	// admin list
 	$table = div(div(par("Admins"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($admins, ["admin name", "promoted by", "time", "reason"], "table", "admin_list");
+	$table["children"][] = make_table($admins, ["admin name", "promoted by", "time", "reason"], "table", "admin_list", [0, 1]);
 
 	echo to_html($table);
 

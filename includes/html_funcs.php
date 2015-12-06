@@ -1,5 +1,8 @@
 <?php
 
+	/**
+		The printer
+	*/
 	function to_html($a)
 	{
 		$html = "<".$a["tag"];
@@ -26,6 +29,49 @@
 		$html .= "</".$a["tag"].">";
 
 		return $html;
+	}
+
+	/**
+		HTML tags
+	*/
+	function make_table($rows, $hds, $class = "", $id = "", $ucols = [], $scols = [])
+	{
+		// isset($hds) || ($hds = array_keys($rows[0]));
+		$t = make_tag("table", $class, $id);
+
+		$thead = make_tag("thead");
+		$thead["children"][] = make_tag("tr");
+		// table headers
+		foreach($hds as $th)
+		{			
+			$c = make_tag("th");
+			$c["data"] = $th;
+			$thead["children"][0]["children"][] = $c;
+		}
+
+		$tbody = make_tag("tbody");
+		foreach ($rows as $row) 
+		{
+			$r = make_tag("tr");
+			for ($i = 0; $i < count($hds); $i++) 
+			{
+				$col = $hds[$i];
+				$c = make_tag("td");
+				if (in_array($i, $ucols))
+					$c["children"][] = user_link($row[$col]);
+				else if (in_array($i, $scols))
+					$c["children"][] = user_link($row[$col]);
+				else
+					$c["children"][] = span($row[$col]);
+				$r["children"][] = $c;
+			}
+			$tbody["children"][] = $r;
+		}
+
+		$t["children"][] = $thead;
+		$t["children"][] = $tbody;
+
+		return $t;
 	}
 
 	function make_form($action, $method, $class = "")
@@ -68,40 +114,6 @@
 		return $f;
 	}
 
-	function make_table($rows, $hds, $class = "", $id = "")
-	{
-		// isset($hds) || ($hds = array_keys($rows[0]));
-		$t = make_tag("table", $class, $id);
-
-		$thead = make_tag("thead");
-		$thead["children"][] = make_tag("tr");
-		// table headers
-		foreach($hds as $th)
-		{			
-			$c = make_tag("th");
-			$c["data"] = $th;
-			$thead["children"][0]["children"][] = $c;
-		}
-
-		$tbody = make_tag("tbody");
-		foreach ($rows as $row) 
-		{
-			$r = make_tag("tr");
-			foreach ($hds as $col) 
-			{
-				$c = make_tag("td");
-				$c["data"] = $row[$col];
-				$r["children"][] = $c;
-			}
-			$tbody["children"][] = $r;
-		}
-
-		$t["children"][] = $thead;
-		$t["children"][] = $tbody;
-
-		return $t;
-	}
-
 	function make_tag($t, $class = "", $id = "")
 	{
 		return ["tag" => $t, "attribs" => ["class" => $class, "id" => $id]];
@@ -122,60 +134,42 @@
 		return $tmp;
 	}
 
-	function post_vote_buttons($p)
+	function hr()
 	{
-		$bdiv = make_tag("div", "btn-group post-".$p["post_id"]);
-		$bdiv["attribs"]["role"] = "group";
-		
-		$up = vote_button($p["post_id"], "arrow-up");
-		$up["attribs"]["class"] .= " post-upvote".(($p["vote"]=='UP') ? " upvote-active":"");
-		$up["attribs"]["id"] = "post-up-".$p["post_id"];
-		
-		$down = vote_button($p["post_id"], "arrow-down");
-		$down["attribs"]["class"] .= " post-downvote".(($p["vote"]=='DOWN') ? " downvote-active":"");
-		$down["attribs"]["id"] = "post-down-".$p["post_id"];
-		
-		$bdiv["children"][] = $up;
-		$bdiv["children"][] = $down;
-		return $bdiv;
+		return make_tag("hr");
 	}
 
-	function comm_vote_buttons($c)
+	function br()
 	{
-		$bdiv = make_tag("div", "btn-group comm-btn-group", "comm-btn-group-".$c["comm_id"]);
-		$bdiv["attribs"]["role"] = "group";
-		
-		$up = vote_button($c["comm_id"], "arrow-up");
-		$up["attribs"]["class"] .= " comm-upvote".(($c["vote"]=='UP') ? " upvote-active":"");
-		$up["attribs"]["id"] = "comm-up-".$c["comm_id"];
-		
-		$down = vote_button($c["comm_id"], "arrow-down");
-		$down["attribs"]["class"] .= " comm-downvote".(($c["vote"]=='DOWN') ? " downvote-active":"");
-		$down["attribs"]["id"] = "comm-down-".$c["comm_id"];
-		
-		if ($c["status"] == "DELETED")
-		{
-			$up["attribs"]["disabled"] = "";
-			$down["attribs"]["disabled"] = "";
-		}
-
-		$bdiv["children"][] = $up;
-		$bdiv["children"][] = $down;
-		return $bdiv;
+		return make_tag("br");
 	}
 
-	function vote_button($id, $g)
+	function small($text, $class = "", $id = "")
 	{
-		$b = make_tag("button", "btn btn-default vote");
-		$b["attribs"]["type"] = "button";
-		$b["attribs"]["value"] = $id;
-		$b["children"][] = glyph($g);
-		return $b;
+		$t = make_tag("small", $class, $id);
+		$t["data"] = $text;
+		return $t;
 	}
 
-	function glyph($g)
+	function strong($text, $class = "", $id = "")
 	{
-		return make_tag("span", "glyphicon glyphicon-".$g);
+		$t = make_tag("strong", $class, $id);
+		$t["data"] = $text;
+		return $t;
+	}
+
+	function span($data = "", $class = "", $id = "")
+	{
+		$span = make_tag("span", $class, $id);
+		$span["data"] = $data;
+		return $span;
+	}
+
+	function h($n = 1, $text = "", $class = "", $id = "")
+	{
+		$h = make_tag("h".$n, $class, $id);
+		$h["data"] = $text;
+		return $h;
 	}
 
 	function a($url, $class = "", $id = "")
@@ -185,16 +179,9 @@
 		return $a;
 	}
 
-	function post_summary($p, $s)
-	{
-		$a = a("post.php?pid=".$p["post_id"]."&soc=".$s["soc_name"], "list-group-item col-md-11");
-		$title = h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", "list-group-item-heading post-title", "post-title-".$p["post_id"]);
-		$d = small("submitted by ".$p["username"]." on ".$p["time"], "post-details");
-		$a["children"][] = $title;
-		$a["children"][] = $d;
-		return $a;
-	}
-
+	/**
+		Post-related
+	*/
 	function post_full($p, $s, $mod)
 	{
 		// post title
@@ -237,6 +224,59 @@
 		$final = div($h, "panel panel-default well");
 		$final["children"][] = $t;
 		return $final;
+	}
+
+	function post_summary($p, $sname, $show_soc = false)
+	{
+		$a = a("post.php?pid=".$p["post_id"]."&soc=".$sname);
+		$title = h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", "list-group-item-heading post-title", "post-title-".$p["post_id"]);
+		$d = small("submitted by ".to_html(user_link($p["username"]))." on ".$p["time"].(($show_soc) ? " to ".to_html(soc_link($sname)):""), "post-details");
+		$a["children"][] = div($title, "row");
+		$div2 = div($a, "col-sm-11 container-fluid");
+		$div2["children"][] = div($d, "row");
+		$div = div(post_vote_buttons($p), "list-group-item container-fluid");
+		$div["children"][] = $div2;
+		return $div;
+	}
+
+	/**
+		Comment-related
+	*/
+	function build_comment_tree($comms, $mod)
+	{
+		$ctree = make_tag("div", "comm-tree");
+
+		for($j = 0; $j < count($comms); $j++)
+		{
+			if (!isset($comms[$j]["visited"]) && ($comms[$j]["anc_id"] == $comms[$j]["comm_id"]))
+			{
+				$comms[$j]["visited"] = true;
+				$ctree["children"][] = recurse($comms, $comms[$j]["comm_id"], $j, $mod);
+			}
+		}
+		return $ctree;
+	}
+
+	function recurse($comms, $curr_comm, $ind, $mod)
+	{
+		if ($ind >= count($comms)) return;
+
+		$subtree = comment($comms[$ind], $mod);
+
+		for($i = 0; $i < count($comms); $i++)
+		{
+			// if ($comms[$i]["anc_id"] > $curr_comm) break;
+			if ($comms[$i]["anc_id"] == $curr_comm)
+			{
+				$c["visited"] = true;
+				if ($comms[$i]["comm_id"] != $curr_comm)
+				{
+					$subtree["children"][] = recurse($comms, $comms[$i]["comm_id"], $i, $mod);
+				}
+			}
+		}
+
+		return $subtree;
 	}
 
 	function comment($c, $mod)
@@ -286,75 +326,79 @@
 		return $final;
 	}
 
-	function hr()
+	/**
+		Vote buttons
+	*/
+	function post_vote_buttons($p)
 	{
-		return make_tag("hr");
+		$bdiv = make_tag("div", "col-sm-1 container-fluid post-".$p["post_id"]);
+		$bdiv["attribs"]["role"] = "group";
+		
+		$up = vote_button($p["post_id"], "arrow-up");
+		$up["attribs"]["class"] .= " post-upvote".(($p["vote"]=='UP') ? " upvote-active":"");
+		$up["attribs"]["id"] = "post-up-".$p["post_id"];
+		
+		$down = vote_button($p["post_id"], "arrow-down");
+		$down["attribs"]["class"] .= " post-downvote".(($p["vote"]=='DOWN') ? " downvote-active":"");
+		$down["attribs"]["id"] = "post-down-".$p["post_id"];
+		
+		$bdiv["children"][] = div($up, "row");
+		$bdiv["children"][] = div($down, "row");
+		return $bdiv;
 	}
 
-	function small($text, $class = "", $id = "")
+	function comm_vote_buttons($c)
 	{
-		$t = make_tag("small", $class, $id);
-		$t["data"] = $text;
-		return $t;
+		$bdiv = make_tag("div", "btn-group comm-btn-group", "comm-btn-group-".$c["comm_id"]);
+		$bdiv["attribs"]["role"] = "group";
+		
+		$up = vote_button($c["comm_id"], "arrow-up");
+		$up["attribs"]["class"] .= " comm-upvote".(($c["vote"]=='UP') ? " upvote-active":"");
+		$up["attribs"]["id"] = "comm-up-".$c["comm_id"];
+		
+		$down = vote_button($c["comm_id"], "arrow-down");
+		$down["attribs"]["class"] .= " comm-downvote".(($c["vote"]=='DOWN') ? " downvote-active":"");
+		$down["attribs"]["id"] = "comm-down-".$c["comm_id"];
+		
+		if ($c["status"] == "DELETED")
+		{
+			$up["attribs"]["disabled"] = "";
+			$down["attribs"]["disabled"] = "";
+		}
+
+		$bdiv["children"][] = $up;
+		$bdiv["children"][] = $down;
+		return $bdiv;
 	}
 
-	function strong($text, $class = "", $id = "")
+	function vote_button($id, $g)
 	{
-		$t = make_tag("strong", $class, $id);
-		$t["data"] = $text;
-		return $t;
+		$b = make_tag("button", "btn btn-default btn-sm vote");
+		$b["attribs"]["type"] = "button";
+		$b["attribs"]["value"] = $id;
+		$b["children"][] = glyph($g);
+		return $b;
 	}
 
-	function soc_link($sname)
+	function glyph($g)
 	{
-		$a = a("soc.php?soc=".$sname);
-		$stitle = h(2, $sname, "soc-title");
-		$a["children"][] = $stitle;
+		return make_tag("span", "glyphicon glyphicon-".$g);
+	}
+
+	/**
+		Links
+	*/
+	function soc_link($sname, $class = "soc-name")
+	{
+		$a = a("soc.php?soc=".$sname, $class);
+		$a["children"][] = span($sname, $class);
 		return $a;
 	}
 
-	function h($n = 1, $text = "", $class = "", $id = "")
+	function user_link($uname, $class = "uname")
 	{
-		$h = make_tag("h".$n, $class, $id);
-		$h["data"] = $text;
-		return $h;
-	}
-
-	function build_comment_tree($comms, $mod)
-	{
-		$ctree = make_tag("div", "comm-tree");
-
-		for($j = 0; $j < count($comms); $j++)
-		{
-			if (!isset($comms[$j]["visited"]) && ($comms[$j]["anc_id"] == $comms[$j]["comm_id"]))
-			{
-				$comms[$j]["visited"] = true;
-				$ctree["children"][] = recurse($comms, $comms[$j]["comm_id"], $j, $mod);
-			}
-		}
-		return $ctree;
-	}
-
-
-	function recurse($comms, $curr_comm, $ind, $mod)
-	{
-		if ($ind >= count($comms)) return;
-
-		$subtree = comment($comms[$ind], $mod);
-
-		for($i = 0; $i < count($comms); $i++)
-		{
-			// if ($comms[$i]["anc_id"] > $curr_comm) break;
-			if ($comms[$i]["anc_id"] == $curr_comm)
-			{
-				$c["visited"] = true;
-				if ($comms[$i]["comm_id"] != $curr_comm)
-				{
-					$subtree["children"][] = recurse($comms, $comms[$i]["comm_id"], $i, $mod);
-				}
-			}
-		}
-
-		return $subtree;
+		$a = a("user.php?u=".$uname, $class);
+		$a["children"][] = span($uname, $class);
+		return $a;
 	}
 ?>

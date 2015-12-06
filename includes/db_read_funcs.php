@@ -849,4 +849,41 @@
 				$r[0]:false;
 	}
 
+	function get_news_feed($lim = 100, $offset = 0)
+	{
+		return query("	SELECT  p.*,
+								u.username, 
+								s.soc_name \"society\",
+								sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) as votes,
+								(SELECT count(*)
+								 FROM post_views w
+								 WHERE w.post_id = p.post_id
+								) as \"views\",
+								(SELECT count(*)
+								   FROM comments c
+								  WHERE c.post_id = p.post_id
+								) as \"comments\",
+								(SELECT pv.vote 
+								   FROM post_votes pv
+								  WHERE pv.post_id = p.post_id
+								    AND pv.user_id = ?
+								) as \"vote\"
+						FROM posts p 
+						JOIN (SELECT soc_id FROM soc_subs WHERE user_id = ?) ss on p.soc_id = ss.soc_id
+						JOIN (SELECT soc_id, soc_name FROM societies) s on s.soc_id = ss.soc_id
+						LEFT JOIN post_votes v on p.post_id = v.post_id
+						JOIN users u on p.user_id = u.user_id
+						
+						GROUP BY p.post_id
+						ORDER BY votes DESC, comments DESC, views DESC
+						LIMIT ?
+						OFFSET ?",
+
+						$_SESSION["user"]["user_id"],
+						$_SESSION["user"]["user_id"],
+						$lim, 
+						$offset
+					);
+	}
+
 ?>

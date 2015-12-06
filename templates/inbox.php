@@ -8,7 +8,7 @@
 <?php
 
 	$table = div(div(par("Received Messages"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($pms, ["sender", "subject", "msg", "time"], "table", "pms");
+	$table["children"][] = make_table($pms, ["sender", "subject", "msg", "time"], "table", "pms", [0]);
 
 	echo to_html($table);
 	

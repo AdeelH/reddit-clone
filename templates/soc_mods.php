@@ -29,7 +29,7 @@
 
 	// mod list
 	$table = div(div(par("Moderators"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($mods, ["mod name", "promoted by", "time", "reason"], "table", "mod_list");
+	$table["children"][] = make_table($mods, ["mod name", "promoted by", "time", "reason"], "table", "mod_list", [0, 1]);
 
 	echo to_html($table);
 

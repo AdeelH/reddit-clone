@@ -31,7 +31,7 @@
 
 	// Soc related activities
 	$table = div(div(par("Locked societies"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($locks, ["society", "admin name", "time", "comment"], "table", "soc_locks");
+	$table["children"][] = make_table($locks, ["society", "admin name", "time", "comment"], "table", "soc_locks", [1], [0]);
 
 	echo to_html($table);
 	

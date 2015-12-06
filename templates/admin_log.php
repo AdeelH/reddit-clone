@@ -11,13 +11,13 @@
 
 	// User related activities
 	$table = div(div(par("User related actions"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($log["user"], ["username", "admin name", "action", "time", "comment"], "table", "user_log");
+	$table["children"][] = make_table($log["user"], ["username", "admin name", "action", "time", "comment"], "table", "user_log", [0, 1]);
 
 	echo to_html($table);
 	
 	// Soc related activities
 	$table = div(div(par("Society related actions"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($log["soc"], ["society", "admin name", "action", "time", "comment"], "table", "soc_log");
+	$table["children"][] = make_table($log["soc"], ["society", "admin name", "action", "time", "comment"], "table", "soc_log", [1], [0]);
 
 	echo to_html($table);
 	

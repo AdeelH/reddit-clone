@@ -353,9 +353,4 @@
 		return $rel["banned"];
 	}
 
-	function user_link($uname)
-	{
-		return "<a href=\"user.php?u=".$uname."\" >".$uname."</a>";
-	}
-
 ?>

@@ -1,5 +1,5 @@
 <div class="container-fluid well well-lg page-header" >
-	<h1 class="soc_title"><?php echo to_html(soc_link($soc["soc_name"])); ?><small></small></h1>
+	<h1 class="soc_title"><?php echo to_html(soc_link($soc["soc_name"]), "soc-title"); ?><small></small></h1>
 	<div class="btn-toolbar">
 		<hr>
 		<?php

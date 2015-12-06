@@ -30,7 +30,7 @@
 
 	// banned users list
 	$table = div(div(par("Banned Users"), "panel-heading"), "panel panel-info");
-	$table["children"][] = make_table($bans, ["username", "banned by", "time", "reason"], "table", "user_bans");
+	$table["children"][] = make_table($bans, ["username", "banned by", "time", "reason"], "table", "user_bans", [0, 1]);
 
 	echo to_html($table);
 

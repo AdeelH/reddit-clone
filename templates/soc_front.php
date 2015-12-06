@@ -101,10 +101,11 @@
 			{
 				echo "<div class=\"row\">";
 
-				echo to_html(post_vote_buttons($p));
-				echo to_html(post_summary($p, $soc));
+				// echo to_html(post_vote_buttons($p));
+				echo to_html(post_summary($p, $soc["soc_name"]));
 
 				echo "</div>";
+				echo "<hr>";
 			}
 		?>
 	</div>
