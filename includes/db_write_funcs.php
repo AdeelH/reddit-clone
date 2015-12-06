@@ -1,5 +1,6 @@
 <?php
 
+	
 	function change_user_status($uid, $aid, $new_status, $action, $comment)
 	{
 		return tquery("	update users
@@ -695,6 +696,31 @@
 							$msg
 						]
 					);	
+	}
+
+	function edit_soc_info($sid, $info)
+	{
+		if (!am_mod(get_society_by_id($sid)))	apologize("Access Denied.");
+
+		return tquery("INSERT INTO soc_details(soc_id, revised_by, info) 
+						VALUES(?, ?, ?);
+
+						SET @last_id = LAST_INSERT_ID();
+
+						UPDATE societies
+						   SET rev_id = @last_id
+						 WHERE soc_id = ?;",
+						[
+							$sid,
+							$_SESSION["user"]["user_id"],
+							$info
+						],
+						[
+						],
+						[
+							$sid
+						]
+					);
 	}
 
 ?>

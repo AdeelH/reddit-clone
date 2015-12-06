@@ -1,30 +1,30 @@
 
 <div>
-	<div id="form-content" class="modal fade">
+	<div id="new-post" class="modal fade">
 		<div class="modal-dialog" role="form">
 			<div class="modal-content">
 				<div class="modal-header">
 					<a class="close" data-dismiss="modal">×</a>
 					<h3>Submit a new post</h3>
 				</div>
-					<form id="postf" class="post" method="post" action=<?php echo "\"new_post.php?soc=".$soc["soc_name"]."\"";?> >
-						<div class="modal-body">
-							<div class="form-group">
-								<input name="title" class="form-control" type="text" placeholder="Title">
-							</div>
-							<div class="form-group">
-								<textarea name="text" class="form-control" rows="4" placeholder="Text (Optional)"></textarea>
-							</div>
+				<form id="postf" class="" method="post" action=<?php echo "\"new_post.php?soc=".$soc["soc_name"]."\"";?> >
+					<div class="modal-body">
+						<div class="form-group">
+							<input name="title" class="form-control" type="text" placeholder="Title">
 						</div>
-						<div class="modal-footer">
-							<input class="btn btn-default" type="submit" value="Submit" id="new_post">
-							<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+						<div class="form-group">
+							<textarea name="text" class="form-control" rows="4" placeholder="Text (Optional)"></textarea>
 						</div>
-					</form>
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-default" type="submit" value="Submit" id="new_post">
+						<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
-	<p><a data-toggle="modal" data-target="#form-content" class="btn btn-primary btn-large">New Post</a></p>
+	<p><a data-toggle="modal" data-target="#new-post" class="btn btn-primary btn-large">New Post</a></p>
 </div>
 <script>
 	$( document ).ready(function(){
@@ -97,15 +97,21 @@
 	<div class="panel-heading">Posts</div>
 	<div class="list-group panel-body">
 		<?php 
-			foreach($posts as $p)
+			if (count($posts) == 0)
 			{
-				echo "<div class=\"row\">";
+				echo to_html(par("No posts yet."));
+			}
+			else
+			{
+				foreach($posts as $p)
+				{
+					echo "<div class=\"row\">";
 
-				// echo to_html(post_vote_buttons($p));
-				echo to_html(post_summary($p, $soc["soc_name"]));
+					echo to_html(post_summary($p, $soc["soc_name"]));
 
-				echo "</div>";
-				echo "<hr>";
+					echo "</div>";
+					echo "<hr>";
+				}
 			}
 		?>
 	</div>

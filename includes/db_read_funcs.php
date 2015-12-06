@@ -5,21 +5,43 @@
 	*/
 	function get_society($sname, $show_deleted = false)
 	{
-		return  (	($s = query("	SELECT 	s.*, 
-											d.time, d.info, d.username r_name,
-											c.username c_name
-									FROM societies s 
-									JOIN users c on c.user_id = s.created_by
-									LEFT JOIN 
-                                    	(SELECT * 
-                                         FROM soc_details
-                                         JOIN users r on r.user_id = revised_by
-                                        ) d                                  
-                                    on s.soc_id = d.soc_id
-									WHERE soc_name = ?",
-									$sname
-						  		)
-					)
+		return  (($s = query("	SELECT 	s.*, 
+										d.time, d.info, d.username r_name,
+										c.username c_name
+								FROM societies s 
+								JOIN users c on c.user_id = s.created_by
+								LEFT JOIN 
+                                	(SELECT * 
+                                     FROM soc_details
+                                     JOIN users r on r.user_id = revised_by
+                                    ) d                                  
+                                on s.soc_id = d.soc_id
+								WHERE soc_name = ?",
+								$sname
+					  		)
+				)
+				&& ($show_deleted || $s[0]["status"] != "DELETED")
+				)
+				? $s[0]:false;
+	}
+
+	function get_society_by_id($sid, $show_deleted = false)
+	{
+		return  (($s = query("	SELECT 	s.*, 
+										d.time, d.info, d.username r_name,
+										c.username c_name
+								FROM societies s 
+								JOIN users c on c.user_id = s.created_by
+								LEFT JOIN 
+                                	(SELECT * 
+                                     FROM soc_details
+                                     JOIN users r on r.user_id = revised_by
+                                    ) d                                  
+                                on s.soc_id = d.soc_id
+								WHERE s.soc_id = ?",
+								$sid
+					  		)
+				)
 				&& ($show_deleted || $s[0]["status"] != "DELETED")
 				)
 				? $s[0]:false;

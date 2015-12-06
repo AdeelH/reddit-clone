@@ -234,6 +234,7 @@
 		$a["children"][] = div($title, "row");
 		$div2 = div($a, "col-sm-11 container-fluid");
 		$div2["children"][] = div($d, "row");
+		$div2["children"][] = div(small($p["comments"]." comments", "post-summ-comms"), "row");
 		$div = div(post_vote_buttons($p), "list-group-item container-fluid");
 		$div["children"][] = $div2;
 		return $div;
@@ -401,4 +402,7 @@
 		$a["children"][] = span($uname, $class);
 		return $a;
 	}
+
+	function u($uname)		{ return to_html(user_link($uname)); }
+	function soc($sname)	{ return to_html(soc_link($sname)); }
 ?>

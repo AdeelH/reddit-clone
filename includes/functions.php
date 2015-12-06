@@ -291,20 +291,6 @@
 					$u["user_id"]
 				]
 			);
-			/*
-		query(" INSERT INTO login_log(USER_ID, IP, RESULT) 
-				VALUES(?, ?, ?);", 
-				$u["user_id"], 
-				$ip, 
-				$succ ? "SUCCESS":"FAILURE"
-			);
-		
-		query("	UPDATE users
-				SET failed_logins = ?*(failed_logins+1)
-				WHERE user_id = ?;", 
-				$succ ? 0:1, 
-				$u["user_id"]
-			);*/
 		
 	}	
 	
