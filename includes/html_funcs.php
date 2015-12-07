@@ -60,7 +60,7 @@
 				if (in_array($i, $ucols))
 					$c["children"][] = user_link($row[$col]);
 				else if (in_array($i, $scols))
-					$c["children"][] = user_link($row[$col]);
+					$c["children"][] = soc_link($row[$col]);
 				else
 					$c["children"][] = span($row[$col]);
 				$r["children"][] = $c;
