@@ -374,11 +374,13 @@
 						]
 					);
 	}
-	function sticky_post($p, $s, $comment = null)
+
+	function sticky_post($pid, $sname, $comment = null)
 	{
+		if (!($p = get_post($pid)))			apologize("Post does not exist.");
 		if ($p["status"] == 'STICKIED')		apologize("Post already stickied.");
 		if ($p["status"] == 'DELETED')		apologize("Post does not exist.");
-		if (!am_mod($s))					apologize("Access Denied.");
+		if (!am_mod(get_society($sname)))	apologize("Access Denied.");
 
 		return tquery("
 						update posts
@@ -399,11 +401,12 @@
 						]
 					);
 	}
-	function unsticky_post($p, $s, $comment = null)
+	function unsticky_post($pid, $s, $comment = null)
 	{
+		if (!($p = get_post($pid)))			apologize("Post does not exist.");
 		if ($p["status"] == 'NORMAL')		apologize("Post not currently stickied.");
 		if ($p["status"] == 'DELETED')		apologize("Post does not exist.");
-		if (!am_mod($s))					apologize("Access Denied.");
+		if (!am_mod(get_society($sname)))	apologize("Access Denied.");
 
 		return tquery("
 						update posts

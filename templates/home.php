@@ -64,6 +64,8 @@
 		});
 	});
 </script>
+
+<!-- news feed -->
 <div class="row container-fluid" style="">
 	<div class="col-md-10 container-fluid">
 		<div class="panel panel-default">
@@ -94,23 +96,19 @@
 	<div class="col-md-2 container-fluid">
 		<?php
 
-			// $fdiv = div(div(par("Create a new society"), "panel-heading"), "panel panel-primary");
-			// $form = make_form("new_soc.php", "GET", "form-inline");
-			// $form = add_field($form, "soc", "society", true, "form-control");
-			// $form = add_button($form, "Create", "btn btn-default");
-			// $fdiv["children"][] = div(div($form, "form-group"), "panel-body");
+			$t = make_table($subs, ["society"], "table", "sub_socs", [], [0]);
+			$t["children"][0]["attribs"]["hidden"] = ""; // hide table header
 			
-			// echo to_html($fdiv);
-
 			$table = div(div(par("Subscribed societies"), "panel-heading"), "panel panel-primary");
-			$table["children"][] = make_table($subs, ["society"], "table", "sub_socs", [], [0]);
-
+			$table["children"][] = $t;
 			echo to_html($table);
 
 		?>
 		<a data-toggle="modal" data-target="#new-soc" class="btn btn-primary btn-large form-control" >Create a Society</a>
 	</div>
 </div>
+
+<!-- new-society modal -->
 <div id="new-soc" class="modal fade">
 	<div class="modal-dialog" role="form">
 		<div class="modal-content">

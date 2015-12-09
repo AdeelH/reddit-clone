@@ -6,17 +6,14 @@
 	function get_society($sname, $show_deleted = false)
 	{
 		return  (($s = query("	SELECT 	s.*, 
-										d.time, d.info, d.username r_name,
+										d.rev_id, d.revised_by, d.info, DATE_FORMAT(d.time, '%H:%i, %b %d, %Y') \"time\",
+										r.username revised_by,
 										c.username c_name
 								FROM societies s 
 								JOIN users c on c.user_id = s.created_by
-								LEFT JOIN 
-                                	(SELECT * 
-                                     FROM soc_details
-                                     JOIN users r on r.user_id = revised_by
-                                    ) d                                  
-                                on s.soc_id = d.soc_id
-								WHERE soc_name = ?",
+								LEFT JOIN soc_details d on d.rev_id = s.rev_id
+								JOIN users r on r.user_id = d.revised_by
+								WHERE s.soc_name = ?",
 								$sname
 					  		)
 				)
@@ -88,7 +85,6 @@
 						$_SESSION["user"]["user_id"]
 					);
 	}
-
 	// end
 	
 	/**
@@ -98,7 +94,8 @@
 	{
 		return query("	SELECT  p.*,
 								u.username, 
-								sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) as votes,
+								if(p.status='STICKIED',10,0) as \"rank\",
+								sum(if(v.vote='UP',1,if(v.vote='DOWN',-1,0))) as \"votes\",
 								(SELECT count(*) 
 								 FROM post_views w
 								 WHERE w.post_id = p.post_id
@@ -117,9 +114,9 @@
 						LEFT JOIN post_votes v on p.post_id = v.post_id 
 						JOIN users u on p.user_id = u.user_id
 						
-						WHERE p.soc_id = ?
+						WHERE p.soc_id = ? AND p.status != 'DELETED'
 						GROUP BY p.post_id
-						ORDER BY votes DESC, views DESC
+						ORDER BY rank DESC, votes DESC, views DESC
 						LIMIT ?
 						OFFSET ?",
 
@@ -160,8 +157,7 @@
 							)
 				)
 				?
-				$p[0]:false;
-		
+				$p[0]:false;		
 	}
 
 	function post_rel($pid, $uid = null)
@@ -401,7 +397,7 @@
 						JOIN (SELECT user_id as mod_id, username as mod_name FROM users) m on l.mod_id=m.mod_id
 						JOIN (SELECT user_id, username FROM users) u on l.user_id=u.user_id
 						WHERE soc_id=?
-						ORDER BY l.time desc",
+						ORDER BY l.time DESC",
 						$soc["soc_id"]
 					);
 	}
@@ -414,7 +410,7 @@
 						JOIN (SELECT user_id as mod_id, username as mod_name FROM users) m on l.mod_id=m.mod_id
 						JOIN (SELECT post_id, soc_id, title FROM posts) p on l.post_id=p.post_id
 						WHERE soc_id=?
-						ORDER BY l.time desc",
+						ORDER BY l.time DESC",
 						$soc["soc_id"]
 					);
 	}
@@ -428,7 +424,7 @@
 						JOIN (SELECT comm_id, post_id, text FROM comments) c on l.comm_id=c.comm_id
 						JOIN (SELECT post_id, soc_id FROM posts) p on c.post_id=p.post_id
 						WHERE soc_id=?
-						ORDER BY l.time desc",
+						ORDER BY l.time DESC",
 						$soc["soc_id"]
 					);
 	}
@@ -908,4 +904,30 @@
 					);
 	}
 
+	function get_soc_edit_history($sid, $lim = 20, $offset = 0)
+	{
+		return query(" SELECT d.rev_id, d.revised_by, d.info, DATE_FORMAT(d.time, '%H:%i, %b %d, %Y') \"time\", u.username
+						 FROM soc_details d
+						 JOIN users u on u.user_id = d.revised_by
+						WHERE d.soc_id = ?
+						ORDER BY d.time DESC
+						LIMIT ?
+					   OFFSET ?",
+						$sid,
+						$lim,
+						$offset
+					);
+	}
+
+	function get_soc_info_revision($rid)
+	{
+		return ($r = query(" SELECT d.*, u.username
+								 FROM soc_details d
+								 JOIN users u on u.user_id = d.revised_by
+								WHERE d.rev_id = ?",
+								$rid)
+				)
+				?
+				$r[0]:false;
+	}
 ?>

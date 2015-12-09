@@ -13,6 +13,8 @@
 	}
 	else
 	{
+		$hist = get_soc_edit_history($soc["soc_id"]);
+
 		render_mult([
 						"soc_common.php",
 						"soc_info.php"
@@ -20,7 +22,8 @@
 					[
 						"title"  => "About ".$soc["soc_name"],
 						"soc"    => $soc,
-						"status" => $status
+						"status" => $status,
+						"hist"	 => $hist
 					]
 					);
 	}
