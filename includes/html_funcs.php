@@ -34,7 +34,13 @@
 	/**
 		HTML tags
 	*/
-	function make_table($rows, $hds, $class = "", $id = "", $ucols = [], $scols = [])
+
+	function make_tag($t, $class = "", $id = "")
+	{
+		return ["tag" => $t, "attribs" => ["class" => $class, "id" => $id, "style" => ""]];
+	}
+
+	function make_table($rows, $hds, $class = "", $id = "", $ucols = [], $scols = [], $pcols = [])
 	{
 		// isset($hds) || ($hds = array_keys($rows[0]));
 		$t = make_tag("table", $class, $id);
@@ -60,7 +66,9 @@
 				if (in_array($i, $ucols))
 					$c["children"][] = user_link($row[$col]);
 				else if (in_array($i, $scols))
-					$c["children"][] = user_link($row[$col]);
+					$c["children"][] = soc_link($row[$col]);
+				else if (in_array($i, $pcols))
+					$c["children"][] = post_link($row["post_id"], $row[$col], $row["society"]);
 				else
 					$c["children"][] = span($row[$col]);
 				$r["children"][] = $c;
@@ -112,11 +120,6 @@
 		$b["data"] = $text;
 		$f["children"][] = $b;
 		return $f;
-	}
-
-	function make_tag($t, $class = "", $id = "")
-	{
-		return ["tag" => $t, "attribs" => ["class" => $class, "id" => $id]];
 	}
 
 	function div($elem = null, $class = "")
@@ -179,6 +182,12 @@
 		return $a;
 	}
 
+	function css_float($tag, $dir)
+	{
+		$tag["attribs"]["style"] .= "float:".$dir.";";
+		return $tag;
+	}
+
 	/**
 		Post-related
 	*/
@@ -186,7 +195,9 @@
 	{
 		// post title
 		$a = a("post.php?pid=".$p["post_id"]."&soc=".$s["soc_name"], "col-md-11");
-		$title = h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", " post-title");
+		$title = div(h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", " post-title"));
+		if ($p["status"]=="STICKIED")
+			$title["children"][] = css_float(div(glyph("pushpin")), "right");
 		$d = small("submitted by ".$p["username"]." on ".$p["time"], "post-details");
 		$a["children"][] = $title;
 		$a["children"][] = $d;
@@ -208,11 +219,21 @@
 
 		// delete button
 		$del = a("", "btn btn-xs btn-link post-del");
-		$del["data"] = "delete";
+		$del["children"][] = glyph("trash");
+		$del["children"][] = span("delete");
 		$del["attribs"]["data-toggle"] = "modal";
 		$del["attribs"]["data-target"] = "#del-post";
 		$del["attribs"]["value"] = $p["post_id"];
 		$del["attribs"]["style"] = "float:right;";
+
+		// sticky button
+		$sticky = a("", "btn btn-xs btn-link post-sticky");
+		$sticky["children"][] = glyph("pushpin");
+		$sticky["children"][] = span($p["status"]=="STICKIED" ? "unsticky":"sticky");
+		$sticky["attribs"]["data-toggle"] = "modal";
+		$sticky["attribs"]["data-target"] = "#sticky-post";
+		$sticky["attribs"]["value"] = $p["post_id"];
+		$sticky["attribs"]["style"] = "float:right;";
 
 		// put it all together
 		$h = div($vb, "row");
@@ -220,7 +241,16 @@
 		$h = div($h, "panel-heading");
 		$t = div($text, "panel-body well");
 		$t["children"][] = hr();
-		$t["children"][] = ($mod) ? $del:$rept;
+		if ($mod)
+		{
+			$t["children"][] = $del;
+			$t["children"][] = $sticky;
+		}
+		else
+		{
+			$t["children"][] = $rept;	
+		}
+		
 		$final = div($h, "panel panel-default well");
 		$final["children"][] = $t;
 		return $final;
@@ -229,12 +259,15 @@
 	function post_summary($p, $sname, $show_soc = false)
 	{
 		$a = a("post.php?pid=".$p["post_id"]."&soc=".$sname);
-		$title = h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", "list-group-item-heading post-title", "post-title-".$p["post_id"]);
+		$title = div(h(4, $p["title"]."\t(".(($p["votes"]>0) ? "+":"").$p["votes"].")", "list-group-item-heading post-title", "post-title-".$p["post_id"]));
+		if ($p["status"]=="STICKIED")
+			$title["children"][] = css_float(div(glyph("pushpin")), "right");
 		$d = small("submitted by ".to_html(user_link($p["username"]))." on ".$p["time"].(($show_soc) ? " to ".to_html(soc_link($sname)):""), "post-details");
 		$a["children"][] = div($title, "row");
 		$div2 = div($a, "col-sm-11 container-fluid");
 		$div2["children"][] = div($d, "row");
-		$div = div(post_vote_buttons($p), "list-group-item container-fluid");
+		$div2["children"][] = div(small($p["comments"]." comments", "post-summ-comms"), "row");
+		$div = div(post_vote_buttons($p), "list-group-item container-fluid post-summary".(($p["status"]=="STICKIED") ? "post-stickied":""));
 		$div["children"][] = $div2;
 		return $div;
 	}
@@ -401,4 +434,14 @@
 		$a["children"][] = span($uname, $class);
 		return $a;
 	}
+
+	function post_link($pid, $title, $sname, $class = "")
+	{
+		$a = a("post.php?pid=".$pid."&soc=".$sname, $class);
+		$a["children"][] = span($title, $class);
+		return $a;
+	}
+
+	function u($uname)		{ return to_html(user_link($uname)); }
+	function soc($sname)	{ return to_html(soc_link($sname)); }
 ?>

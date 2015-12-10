@@ -1,5 +1,6 @@
 <?php
 
+	
 	function change_user_status($uid, $aid, $new_status, $action, $comment)
 	{
 		return tquery("	update users
@@ -373,11 +374,13 @@
 						]
 					);
 	}
-	function sticky_post($p, $s, $comment = null)
+
+	function sticky_post($pid, $sname, $comment = null)
 	{
+		if (!($p = get_post($pid)))			apologize("Post does not exist.");
 		if ($p["status"] == 'STICKIED')		apologize("Post already stickied.");
 		if ($p["status"] == 'DELETED')		apologize("Post does not exist.");
-		if (!am_mod($s))					apologize("Access Denied.");
+		if (!am_mod(get_society($sname)))	apologize("Access Denied.");
 
 		return tquery("
 						update posts
@@ -398,11 +401,12 @@
 						]
 					);
 	}
-	function unsticky_post($p, $s, $comment = null)
+	function unsticky_post($pid, $s, $comment = null)
 	{
+		if (!($p = get_post($pid)))			apologize("Post does not exist.");
 		if ($p["status"] == 'NORMAL')		apologize("Post not currently stickied.");
 		if ($p["status"] == 'DELETED')		apologize("Post does not exist.");
-		if (!am_mod($s))					apologize("Access Denied.");
+		if (!am_mod(get_society($sname)))	apologize("Access Denied.");
 
 		return tquery("
 						update posts
@@ -695,6 +699,31 @@
 							$msg
 						]
 					);	
+	}
+
+	function edit_soc_info($sid, $info)
+	{
+		if (!am_mod(get_society_by_id($sid)))	apologize("Access Denied.");
+
+		return tquery("INSERT INTO soc_details(soc_id, revised_by, info) 
+						VALUES(?, ?, ?);
+
+						SET @last_id = LAST_INSERT_ID();
+
+						UPDATE societies
+						   SET rev_id = @last_id
+						 WHERE soc_id = ?;",
+						[
+							$sid,
+							$_SESSION["user"]["user_id"],
+							$info
+						],
+						[
+						],
+						[
+							$sid
+						]
+					);
 	}
 
 ?>

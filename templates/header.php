@@ -19,8 +19,8 @@
 			.soc-title { color: black; }
 			.post-details { color: #777; }
 			.modal { text-align: left; }
-			/*
 			a { color: #555; }
+			/*
 			.active { background-color: #aaa; }
 			.well { background-color: #aaa;}*/
 		</style>

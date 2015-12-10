@@ -10,6 +10,9 @@
 		if (!$post || $post["status"] == "DELETED")
 			apologize("Nothing here!");
 
+		if ($post["soc_id"] != $soc["soc_id"])
+			redirect("post.php?pid=".$_GET["pid"]."&soc=".get_society_by_id($post["soc_id"])["soc_name"]);
+
 		// register post view
 		register_post_view($post["post_id"]);
 		

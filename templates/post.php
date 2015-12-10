@@ -169,9 +169,6 @@
 			$("#report-comm-title").val($.trim($("#comm-title-"+$(this).attr("value")).text())+" "+$("#comm-time-"+$(this).attr("value")).text());
 			$("#report-comm-text").val($("#comm-text-"+$(this).attr("value")).text());
 		});
-		$(".post-report").click(function() {
-			$("#report-post-id").val($(this).attr("value"));
-		});
 	});
 </script>
 
@@ -187,10 +184,13 @@
 				<form id="post_report_f" class="" method="POST" action=<?php echo "\"report_post.php?soc=".$soc["soc_name"]."&pid=".$post["post_id"]."\"";?> >
 					<div class="modal-body">
 						<div class="form-group">
-						<input name="report_post_id" id="report-post-id" class="hidden" value="" readonly="">
+							<input name="report_post_id" id="report-post-id" class="hidden" value="" readonly="">
 						</div>
 						<div class="form-group">
-						<textarea name="report_post_reason" id="report-post-text" class="form-control" rows="4" placeholder="Reason for reporting..."></textarea>
+							<textarea name="report_post_text" id="report-post-text" class="form-control" rows="4" disabled=""><?php echo $post["text"]; ?></textarea>
+						</div>
+						<div class="form-group">
+							<textarea name="report_post_reason" id="report-post-reason" class="form-control" rows="4" placeholder="Reason for reporting..."></textarea>
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -204,39 +204,71 @@
 </div>
 
 <!-- post-deletion modal -->
-<div>
-	<div id="del-post" class="modal fade">
-		<div class="modal-dialog" role="form">
-			<div class="modal-content">
-				<div class="modal-header">
-					<a class="close" data-dismiss="modal">×</a>
-					<h3 id="del-post-heading">Delete post</h3>
-				</div>
-				<form id="post_del_f" class="" method="POST" action=<?php echo "\"del_post.php?soc=".$soc["soc_name"]."\""; ?> >
-					<div class="modal-body">
-						<div class="form-group">
-						<input name="del_post_id" id="del-post-id" class="form-control hidden" value=<?php echo $post["post_id"]; ?> readonly="">
-						</div>
-						<div class="form-group">
-						<strong><input name="del_post_title" id="del-post-title" class="form-control" value=<?php echo "\"".$post["title"]."\""; ?> disabled="">
-						</div></strong>
-						<div class="form-group">
-						<textarea name="del_post_text" id="del-post-text" class="form-control" rows="4" value=<?php echo "\"".$post["text"]."\""; ?> disabled=""></textarea>
-						</div>
-						<div class="form-group">
-						<textarea name="del_post_reason" id="del-post-text" class="form-control" rows="4" placeholder="Reason for deletion..."></textarea>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<input class="btn btn-default" type="submit" value="Confirm" id="del-post-btn">
-						<a href="#" class="btn" data-dismiss="modal">Cancel</a>
-					</div>
-				</form>
+<div id="del-post" class="modal fade">
+	<div class="modal-dialog" role="form">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a class="close" data-dismiss="modal">×</a>
+				<h3 id="del-post-heading">Delete post</h3>
 			</div>
+			<form id="post_del_f" class="" method="POST" action="del_post.php">
+				<div class="modal-body">
+					<div class="form-group">
+						<input name="del_post_id" id="del-post-id" class="form-control hidden" value=<?php echo $post["post_id"]; ?> readonly="">
+						<input name="soc_name" id="sticky-soc-name" class="" hidden readonly value=<?php echo $soc["soc_name"]; ?> >
+					</div>
+					<div class="form-group">
+						<strong><input name="del_post_title" id="del-post-title" class="form-control" value=<?php echo "\"".$post["title"]."\""; ?> disabled="">
+					</div></strong>
+					<div class="form-group">
+						<textarea name="del_post_text" id="del-post-text" class="form-control" rows="4" value="" disabled=""><?php echo $post["text"]; ?></textarea>
+					</div>
+					<div class="form-group">
+						<textarea name="del_post_reason" id="del-post-text" class="form-control" rows="4" placeholder="Reason for deletion..."></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input class="btn btn-default" type="submit" value="Confirm" id="del-post-btn">
+					<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
 
+<!-- post-sticky modal -->
+<div id="sticky-post" class="modal fade">
+	<div class="modal-dialog" role="form">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a class="close" data-dismiss="modal">×</a>
+				<h3 id="sticky-post-heading"><?php echo ($post["status"]=="STICKIED") ? "Unsticky":"Sticky"; ?> post</h3>
+			</div>
+			<form id="post_sticky_f" class="" method="POST" action="sticky_post.php" >
+				<div class="modal-body">
+					<div class="form-group">
+						<input name="sticky_post_id" id="sticky-post-id" class="" hidden readonly value=<?php echo $post["post_id"]; ?> >
+						<input name="soc_name" id="sticky-soc-name" class="" hidden readonly value=<?php echo $soc["soc_name"]; ?> >
+						<input name="action" id="sticky-action" class="" hidden readonly value=<?php echo ($post["status"]=="STICKIED") ? "UNSTICKY":"STICKY";?> >
+					</div>
+					<div class="form-group">
+						<strong><input name="sticky_post_title" id="sticky-post-title" class="form-control" value=<?php echo "\"".$post["title"]."\""; ?> disabled="">
+					</div></strong>
+					<div class="form-group">
+						<textarea name="sticky_post_text" id="sticky-post-text" class="form-control" rows="4" value="" disabled=""><?php echo $post["text"]; ?></textarea>
+					</div>
+					<div class="form-group">
+						<textarea name="sticky_post_reason" id="sticky-post-text" class="form-control" rows="2" placeholder=<?php echo "\"Reason for ".(($post["status"]=="STICKIED") ? "un":"" )."sticky-ing...\""; ?>></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input class="btn btn-default" type="submit" value="Confirm" id="sticky-post-btn">
+					<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 <!-- comment-report modal -->
 <div>

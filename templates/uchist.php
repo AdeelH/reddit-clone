@@ -8,7 +8,7 @@
 <?php
 
 	$table = div(div(par("Comment history"), "panel-heading"), "panel panel-primary");
-	$table["children"][] = make_table($comms, ["text", "votes", "post", "society", "time"], "table", "uchist");
+	$table["children"][] = make_table($comms, ["text", "votes", "post", "society", "time"], "table", "uchist", [], [3], [2]);
 
 	echo to_html($table);
 

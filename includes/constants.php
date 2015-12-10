@@ -1,4 +1,5 @@
 <?php
+
     // your database's name
     define("DATABASE", "db");
 

@@ -64,6 +64,8 @@
 		});
 	});
 </script>
+
+<!-- news feed -->
 <div class="row container-fluid" style="">
 	<div class="col-md-10 container-fluid">
 		<div class="panel panel-default">
@@ -71,14 +73,21 @@
 			<div class="panel-heading">News Feed</div>
 			<div class="list-group panel-body">
 				<?php 
-					foreach($posts as $p)
+					if (count($posts) == 0)
 					{
-						echo "<div class=\"row\">";
+						echo to_html(par("No posts yet."));
+					}
+					else
+					{
+						foreach($posts as $p)
+						{
+							echo "<div class=\"row\">";
 
-						echo to_html(post_summary($p, $p["society"], true));
+							echo to_html(post_summary($p, $p["society"], true));
 
-						echo "</div>";
-						echo "<hr>";
+							echo "</div>";
+							echo "<hr>";
+						}
 					}
 				?>
 			</div>
@@ -86,20 +95,41 @@
 	</div>
 	<div class="col-md-2 container-fluid">
 		<?php
-					
-			// $fdiv = div(div(par("Create a new society"), "panel-heading"), "panel panel-primary");
-			// $form = make_form("new_soc.php", "GET", "form-inline");
-			// $form = add_field($form, "soc", "society", true, "form-control");
-			// $form = add_button($form, "Create", "btn btn-default");
-			// $fdiv["children"][] = div(div($form, "form-group"), "panel-body");
+
+			$t = make_table($subs, ["society"], "table", "sub_socs", [], [0]);
+			$t["children"][0]["attribs"]["hidden"] = ""; // hide table header
 			
-			// echo to_html($fdiv);
-
 			$table = div(div(par("Subscribed societies"), "panel-heading"), "panel panel-primary");
-			$table["children"][] = make_table($subs, ["society"], "table", "sub_socs", [], [0]);
-
+			$table["children"][] = $t;
 			echo to_html($table);
 
 		?>
+		<a data-toggle="modal" data-target="#new-soc" class="btn btn-primary btn-large form-control" >Create a Society</a>
+	</div>
+</div>
+
+<!-- new-society modal -->
+<div id="new-soc" class="modal fade">
+	<div class="modal-dialog" role="form">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a class="close" data-dismiss="modal">×</a>
+				<h3>Create a new Society</h3>
+			</div>
+			<form id="new-soc-form" class="" method="POST" action="new_soc.php" >
+				<div class="modal-body">
+					<div class="form-group">
+						<input name="soc" class="form-control" type="text" placeholder="Society name">
+					</div>
+					<div class="form-group">
+						<textarea name="text" class="form-control" rows="4" placeholder="Text (Optional)"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input class="btn btn-default" type="submit" value="Submit" id="new_post">
+					<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+				</div>
+			</form>
+		</div>
 	</div>
 </div>

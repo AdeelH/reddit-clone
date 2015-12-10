@@ -15,7 +15,10 @@
 		</div>
 		
 		<div class="form-group">
-			<p><small>(password = 123 for user 'adeel' (admin account))</small></p>
+			<p><small>* Password = 123 for user 'adeel' (admin account)</small></p>
+		</div>
+		<div class="form-group">
+			<p><small>* To setup db connection, modify includes/constants.php</small></p>
 		</div>
 		
 		<div class="form-group">

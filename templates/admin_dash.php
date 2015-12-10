@@ -5,7 +5,7 @@
 <script type="text/javascript" src="../includes/jqwidgets-ver3.9.1/jqwidgets/jqxdata.js"></script>
 <script type="text/javascript">
     $(document).ready(function () 
-    {        
+    {
         // prepare chart data
         var data1 = <?php echo json_encode($asocs); ?>;
         // prepare jqxChart settings
@@ -48,7 +48,7 @@
         var data2 = <?php echo json_encode($gsocs); ?>;
         // prepare jqxChart settings
         var settings2 = {
-            title: "Top 10 most active societies today",
+            title: "Fastest growing societies today",
             showLegend: true,
             enableAnimations: true,
             padding: { left: 20, top: 5, right: 20, bottom: 5 },
