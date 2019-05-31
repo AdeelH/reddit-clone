@@ -1,5 +1,5 @@
 # reddit-clone
-A Reddit-like onlien forum, written in pure PHP with MySQL as the database. (Class project for Database Systems, Fall 2015)
+A Reddit-like online forum, written in pure PHP with MySQL as the database. (Class project for Database Systems, Fall 2015)
 
 
 ## Features ([screenshots](./Screenshots))
